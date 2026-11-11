@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Active Safety System Variables</title>
+</head>
+<body>
+  <h1>Active Safety System Variables</h1>
+  <p id="loading">Loading vehicle data...</p>
+  <p id="error" hidden role="alert"></p>
+
+  <table id="variable-table" hidden>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Group</th><th>Description</th></tr>
+    </thead>
+    <tbody id="variable-rows"></tbody>
+  </table>
+
+  <script>
+    // This browser function uses asynchronous Fetch so the loading message stays
+    // visible while Flask retrieves filtered data from the public NHTSA API.
+    async function loadVehicleVariables() {
+      const loading = document.getElementById("loading");
+      const error = document.getElementById("error");
+      const table = document.getElementById("variable-table");
+      const rows = document.getElementById("variable-rows");
+
+      try {
+        const response = await fetch("/items");
+        if (!response.ok) {
+          throw new Error(`The API returned ${response.status}.`);
+        }
+
+        const variables = await response.json();
+        variables.forEach((variable) => {
+          const row = document.createElement("tr");
+          // textContent displays the remote data as text instead of treating its
+          // description field as browser HTML.
+          [variable.ID, variable.Name, variable.GroupName, variable.Description]
+            .forEach((value) => {
+              const cell = document.createElement("td");
+              // Some NHTSA descriptions include paragraph tags, so remove them for this plain table.
+              cell.textContent = String(value || "").replace(/<\/?p>/g, "");
+              row.appendChild(cell);
+            });
+          rows.appendChild(row);
+        });
+        table.hidden = false;
+      } catch (requestError) {
+        // A failed Fetch call gives the user a readable error while the page remains usable.
+        error.textContent = `Unable to load vehicle data: ${requestError.message}`;
+        error.hidden = false;
+      } finally {
+        // The loading state ends whether the request succeeds or reaches the error handler.
+        loading.hidden = true;
+      }
+    }
+
+    loadVehicleVariables();
+  </script>
+</body>
+</html>

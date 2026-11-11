@@ -1,0 +1,5 @@
+# Reflection
+
+I began by creating a Flask route that calls the provided NHTSA endpoint, reads its JSON response, and filters the results by `GroupName`. I then added a small browser page that uses asynchronous Fetch to request the local route and render the filtered data. The loading message and error message made the request lifecycle easier to see than simply printing JSON in a terminal.
+
+One surprise was that the NHTSA response is an object with the vehicle variables nested inside `Results`, rather than a list returned directly at the top level. Some descriptions also included opening and closing `<p>` tags, so I added one line that removes those tags before the page displays the text. The project evolved from a simple Flask JSON endpoint into a small front end and back end example, while still keeping the filter in Python. I better understand the difference between a browser Fetch request to a local API and the server's request to an outside service. I would like to learn more about pagination and caching when an external API has a much larger response.
